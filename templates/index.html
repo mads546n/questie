@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questie - Weekly Planner</title>
+</head>
+<body>
+    <h1>Questie Weekly Planner</h1>
+    <div style="display: flex; gap: 20px">
+        {% for day, quests in planner.items() %}
+        <div>
+        <h2>{{ day }}</h2>
+        <ul>
+            {% for quest in quests %}
+            <li>
+                <strong>{{ quest.title }}</strong> - {{ quest.time }} at {{ quest.location }}<br>
+                <em>{{ quest.description }}</em>
+                {% if quest.completed %}
+                    <span style="color:green;">Completed</span>
+                {% else %}
+                    <form action="{{ url_for('complete_quest', day=day, quest_index=loop.index0) }}" method="post" style="display:inline;">
+                        <button type="submit">Mark as completed</button>
+                    </form>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <form action="{{ url_for('add_quest', day=day) }}" method="post">
+            <h4>Add Quest</h4>
+            <label>
+                <input type="text" name="title" placeholder="Title" required>
+            </label><br>
+            <label>
+                <input type="time" name="time" required>
+            </label><br>
+            <label>
+                <input type="text" name="location" placeholder="Location">
+            </label><br>
+            <label>
+                <textarea name="description" placeholder="Description"></textarea>
+            </label><br>
+            <button type="submit">Add Quest</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>
