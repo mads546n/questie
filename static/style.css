@@ -1,0 +1,88 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: Arial, sanf-serif, serif;
+}
+
+.planner {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    border: 1px solid black;
+    margin-top: 20px;
+}
+
+.day {
+    flex: 1;
+    padding: 10px;
+    border-right: 1px solid black;
+    min-height: 300px;
+}
+
+.day:last-child {
+    border-right: none;
+}
+
+.form-container {
+    position: absolute;
+    right: 10px;
+    top: 100px;
+    border: 1px solid black;
+    padding: 15px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 250px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin: 10px 0;
+    border: 1px solid gray;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    padding: 10px;
+    text-align: center;
+}
+
+.quest-title {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+.quest-time {
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.quest-location {
+    font-size: 0.85em;
+    margin-bottom: 5px;
+}
+
+.quest-description {
+    font-style: italic;
+    font-size: 0.85em;
+}
+
+button {
+    padding: 5px 10px;
+    margin: 5px;
+    border: 1px solid black;
+    border-radius: 3px;
+    background-color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #e0e0e0;
+}
+
+.reset-button {
+    margin-top: 20px;
+}

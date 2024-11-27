@@ -64,6 +64,7 @@ def home():
 # Route to add a new quest
 @app.route('/add_quest/<day>', methods=['POST'])
 def add_quest(day):
+    day = request.form.get('day')
     try:
         if day not in weekly_planner or day == "metadata":
             flash("Invalid day specified!")
