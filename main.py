@@ -8,6 +8,7 @@ app = Flask(__name__, template_folder='templates')
 print("Flask is looking for templates in:", app.template_folder)
 app.secret_key = 'hemmelig'
 
+weekly_planner = {}
 
 def load_data():
     global weekly_planner
@@ -49,7 +50,9 @@ def reset_planner():
         "metadata": {"completed_quests_count": 0}
     }
 
+
 load_data()
+
 
 # (very) early data structure for Questie's weekly planner.
 # Dictionary format: {'day': [list_of_quests]}

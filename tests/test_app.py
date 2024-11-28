@@ -1,10 +1,10 @@
-import unittest
+import tests
 from main import app, weekly_planner
 from datetime import datetime
 from flask import url_for
 
 
-class QuestieTestCase(unittest.TestCase):
+class QuestieTestCase(tests.TestCase):
     def setUp(self):
         # Set up test client
         self.client = app.test_client()
