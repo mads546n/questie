@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Performance Evaluation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Performance Evaluation</h1>
+    <p>Total Quests: {{ performance_data.total_quests }}</p>
+    <p>Completed Quests: {{ performance_data.completed_quests }}</p>
+    <p>Average Completed Quests per Day: {{ performance_data.average_completed_per_day | round(2) }}</p>
+
+    <h2>Quests per Day</h2>
+    <img src="data:image/png;base64,{{ graph_urls.total_quests }}" alt="Total Quests per Day">
+
+    <h2>Completed Quests per Day</h2>
+    <img src="data:image/png;base64,{{ graph_urls.completed_quests }}" alt="Completed Quests per Day">
+
+    <form action="{{ url_for('home') }}" method="get" style="margin-top: 10px;">
+        <button type="submit">Back to Planner</button>
+    </form>
+
+</body>
+</html>

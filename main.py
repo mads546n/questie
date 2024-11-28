@@ -1,7 +1,10 @@
+import io
 import os
 from datetime import datetime
 import json
 import logging
+import matplotlib.pyplot as plt
+import base64
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 
@@ -23,7 +26,7 @@ def load_data():
             with open("data.json", 'r') as file:
                 content = file.read()
                 if content.strip() == '':
-                    raise json.JSONDecodeError("Empty file", '',0)
+                    raise json.JSONDecodeError("Empty file", '', 0)
                 weekly_planner = json.loads(content)
         else:
             reset_planner()
@@ -60,8 +63,68 @@ def reset_planner():
     }
 
 
-# (very) early data structure for Questie's weekly planner.
-# Dictionary format: {'day': [list_of_quests]}
+def calculate_performance():
+    total_quests = 0
+    completed_quests = 0
+    quests_per_day = {}
+
+    # Iterate over all days in the weekly-planner
+    for day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]:
+        quests = weekly_planner.get(day, [])
+        quests_per_day[day] = {'total': len(quests), 'completed': 0}
+        total_quests += len(quests)
+        for quest in quests:
+            if quest.get('completed'):
+                completed_quests += 1
+                quests_per_day[day]['completed'] += 1
+
+    # Calculate average of quests per week
+    average_completed_per_day = completed_quests / 7
+    performance_data = {
+        'total_quests': total_quests,
+        'completed_quests': completed_quests,
+        'average_completed_per_day': average_completed_per_day,
+        'quests_per_day': quests_per_day,
+    }
+    return performance_data
+
+
+# Helper function to generate graphs and encode them
+def generate_graphs(performance_data):
+    graph_urls = {}
+
+    # Generated bar-charts of quests_per_day
+    days = list((performance_data['quests_per_day'].keys()))
+    total_quests = [performance_data['quests_per_day'][day]['total'] for day in days]
+    completed_quests = [performance_data['quests_per_day'][day]['completed'] for day in days]
+
+    # Bar-chart for total quests completed
+    fig1, ax1 = plt.subplots()
+    ax1.bar(days, total_quests, color='skyblue')
+    ax1.set_title('Total quests per day')
+    ax1.set_ylabel('Number of quests')
+    fig1.tight_layout()
+    img1 = io.BytesIO()
+    fig1.savefig(img1, format='png')
+    img1.seek(0)
+    graph_urls['total_quests'] = base64.b64encode(img1.getvalue()).decode()
+
+    plt.close(fig1)
+
+    # Bar-chart of completed quests
+    fig2, ax2 = plt.subplots()
+    ax2.bar(days, completed_quests, color='green')
+    ax2.set_title('Completed Quests per Day')
+    ax2.set_ylabel('Number of completed quests')
+    fig2.tight_layout()
+    img2 = io.BytesIO()
+    fig2.savefig(img2, format='png')
+    img2.seek(0)
+    graph_urls['completed_quests'] = base64.b64encode(img2.getvalue()).decode()
+
+    plt.close(fig2)
+
+    return graph_urls
 
 
 # Home page displaying a single weekly planner
@@ -161,6 +224,15 @@ def reset():
     save_data()
     flash("Reset was successful!")
     return redirect(url_for('home'))
+
+
+@app.route('/evaluate')
+def evaluate_performance():
+    # Calculate performance metrics
+    performance_data = calculate_performance()
+    # Generate visual graphs
+    graph_urls = generate_graphs(performance_data)
+    return render_template('evaluate.html', performance_data=performance_data, graph_urls=graph_urls)
 
 
 if __name__ == '__main__':
