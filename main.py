@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 import json
+import logging
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 
@@ -10,12 +11,20 @@ app.secret_key = 'hemmelig'
 
 weekly_planner = {}
 
+# Logging-configuration
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 def load_data():
     global weekly_planner
     try:
         if os.path.exists("data.json"):
             with open("data.json", 'r') as file:
-                weekly_planner = json.load(file)
+                content = file.read()
+                if content.strip() == '':
+                    raise json.JSONDecodeError("Empty file", '',0)
+                weekly_planner = json.loads(content)
         else:
             reset_planner()
 
@@ -49,9 +58,6 @@ def reset_planner():
         "Sunday": [],
         "metadata": {"completed_quests_count": 0}
     }
-
-
-load_data()
 
 
 # (very) early data structure for Questie's weekly planner.
@@ -158,4 +164,5 @@ def reset():
 
 
 if __name__ == '__main__':
+    load_data()
     app.run(debug=True)
