@@ -59,7 +59,8 @@ def reset_planner():
         "Friday": [],
         "Saturday": [],
         "Sunday": [],
-        "metadata": {"completed_quests_count": 0}
+        "metadata": {"completed_quests_count": 0,
+                     "total_xp": 0}
     }
 
 
@@ -80,11 +81,14 @@ def calculate_performance():
 
     # Calculate average of quests per week
     average_completed_per_day = completed_quests / 7
+    total_xp = weekly_planner['metadata'].get('total_xp', 0)
+
     performance_data = {
         'total_quests': total_quests,
         'completed_quests': completed_quests,
         'average_completed_per_day': average_completed_per_day,
         'quests_per_day': quests_per_day,
+        'total_xp': total_xp
     }
     return performance_data
 
@@ -166,6 +170,9 @@ def add_quest(day):
             flash('End time must be after start time.')
             return redirect(url_for('home'))
 
+        duration = (end_dt - start_dt).seconds // 3600
+        xp = max(duration * 25, 25)
+
         # Quest structure definition
         quest = {
             "title": title,
@@ -173,7 +180,8 @@ def add_quest(day):
             "end_time": end_time,
             "location": location,
             "description": description,
-            "completed": False
+            "completed": False,
+            "xp": xp
         }
 
         weekly_planner[day].append(quest)
@@ -193,10 +201,15 @@ def add_quest(day):
 def complete_quest(day, quest_index):
     try:
         if 0 <= quest_index < len(weekly_planner[day]):
-            weekly_planner[day][quest_index]['completed'] = True
-            weekly_planner["metadata"]["completed_quests_count"] += 1
-            save_data()
-            flash('Quest marked as completed!')
+            quest = weekly_planner[day][quest_index]
+            if not quest['completed']:
+                quest['completed'] = True
+                weekly_planner["metadata"]["completed_quests_count"] += 1
+                weekly_planner["metadata"]["total_xp"] += quest['xp']
+                save_data()
+                flash('Quest marked as completed!')
+            else:
+                flash('Quest is already completed!')
         else:
             flash('Invalid quest index!')
     except Exception as e:
@@ -207,9 +220,13 @@ def complete_quest(day, quest_index):
 @app.route('/quest/delete/<day>/<int:quest_index>', methods=['POST'])
 def delete_quest(day, quest_index):
     try:
+        if day not in weekly_planner or day == 'metadata':
+            flash('Invalid day specified!')
+            return redirect(url_for('home'))
+
         if 0 <= quest_index < len(weekly_planner[day]):
-            del weekly_planner[day][quest_index]
-            flash('Quest was deleted successfully!')
+            deleted_quest = weekly_planner[day].pop(quest_index)
+            flash(f'Quest "{deleted_quest["title"]}" was deleted successfully!')
             save_data()
         else:
             flash('Invalid quest index!')

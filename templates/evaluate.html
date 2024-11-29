@@ -10,6 +10,9 @@
     <p>Total Quests: {{ performance_data.total_quests }}</p>
     <p>Completed Quests: {{ performance_data.completed_quests }}</p>
     <p>Average Completed Quests per Day: {{ performance_data.average_completed_per_day | round(2) }}</p>
+    <div class="metadata">
+        <p>Total XP Gained: {{ performance_data['total_xp'] }}</p>
+    </div>
 
     <h2>Quests per Day</h2>
     <img src="data:image/png;base64,{{ graph_urls.total_quests }}" alt="Total Quests per Day">
