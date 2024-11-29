@@ -6,19 +6,51 @@
     <title>Questie - Weekly Planner</title>
 </head>
 <body>
-    <h1>Questie Weekly Planner</h1>
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul class="flashes">
-        {% for message in messages %}
-        <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
-    {% endwith %}
-    <div style="display: flex; gap: 20px">
-        {% for day, quests in planner.items() %}
-        <div>
+<h1>Questie Weekly Planner</h1>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+<!-- If we're editing a quest, display the edit form -->
+{% if quest %}
+<!-- Edit Quest Form -->
+<h2>Edit Quest</h2>
+<form action="{{ url_for('edit_quest', day=day, quest_index=quest_index) }}" method="post">
+    <label>
+        Title:
+        <input type="text" name="title" value="{{ quest.title }}" required>
+    </label><br>
+    <label>
+        Start Time:
+        <input type="time" name="start_time" value="{{ quest.start_time }}" required>
+    </label><br>
+    <label>
+        End Time:
+        <input type="time" name="end_time" value="{{ quest.end_time }}" required>
+    </label><br>
+    <label>
+        Location:
+        <input type="text" name="location" value="{{ quest.location }}">
+    </label><br>
+    <label>
+        Description:
+        <textarea name="description">{{ quest.description }}</textarea>
+    </label><br>
+    <button type="submit">Update Quest</button>
+</form>
+{% else %}
+<!-- Displaying quests for each day -->
+<div style="display: flex; gap: 20px">
+    {% for day, quests in weekly_planner.items() %}
+    <div>
         <h2>{{ day }}</h2>
         <ul>
             {% for quest in quests %}
@@ -26,18 +58,26 @@
                 <strong>{{ quest.title }}</strong> - {{ quest.start_time }} to {{ quest.end_time }} at {{ quest.location }}<br>
                 <em>{{ quest.description }}</em>
                 {% if quest.completed %}
-                    <span style="color:green;">Completed</span>
+                <span>Completed</span>
                 {% else %}
-                    <form action="{{ url_for('complete_quest', day=day, quest_index=loop.index0) }}" method="post" style="display:inline;">
-                        <button type="submit">Mark as completed</button>
-                    </form>
-                {% endif %}
-                <form action="{{ url_for('delete_quest', day=day, quest_index=loop.index0) }}" method="post" style="display:inline;">
-                    <button type="submit" onclick="return confirm('Are you sure you want to delete this quest)';">Delete</button>
+                <form action="{{ url_for('complete_quest', day=day, quest_index=loop.index0) }}" method="post" style="display:inline;">
+                    <button type="submit">Mark as completed</button>
                 </form>
+                {% endif %}
+
+                <form action="{{ url_for('delete_quest', day=day, quest_index=loop.index0) }}" method="post" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this quest?');">Delete</button>
+                </form>
+
+                <!-- Edit button that links to the edit form page -->
+                <a href="{{ url_for('edit_quest', day=day, quest_index=loop.index0) }}">
+                    <button>Edit</button>
+                </a>
             </li>
             {% endfor %}
         </ul>
+
+        <!-- Form to add new quest -->
         <form action="{{ url_for('add_quest', day=day) }}" method="post">
             <h4>Add Quest</h4>
             <label>
@@ -60,5 +100,6 @@
     </div>
     {% endfor %}
 </div>
+{% endif %}
 </body>
 </html>
