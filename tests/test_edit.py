@@ -1,9 +1,11 @@
+import os
 import unittest
 from main import app
 import main
 
 class EditQuestTestCase(unittest.TestCase):
     def setUp(self):
+        os.environ['FLASK_ENV'] = 'test'
         self.client = app.test_client()
         self.client.testing = True
         main.reset_planner()

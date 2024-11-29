@@ -22,7 +22,12 @@ logger = logging.getLogger(__name__)
 def load_data():
     global weekly_planner
     try:
-        if os.path.exists("data.json"):
+        if os.getenv('FLASK') == 'test' and os.path.exists("tests/data.json"):
+            data_file = "tests/data.json"
+        else:
+            data_file = "data.json"
+
+        if os.path.exists(data_file):
             with open("data.json", 'r') as file:
                 content = file.read()
                 if content.strip() == '':
@@ -43,6 +48,11 @@ def load_data():
 def save_data():
     global weekly_planner
     try:
+        if os.getenv('FLASK_ENV') == 'test':
+            data_file = "tests/data.json"
+        else:
+            data_file = "data.json"
+
         with open('data.json', 'w') as file:
             json.dump(weekly_planner, file, indent=4)
     except Exception as e:
@@ -136,7 +146,7 @@ def home():
 # Route to add a new quest
 @app.route('/add_quest/<day>', methods=['POST'])
 def add_quest(day):
-    # day = request.form.get('day')
+    day = request.form.get('day')
     try:
         if day not in weekly_planner or day == "metadata":
             flash("Invalid day specified!")
@@ -249,7 +259,7 @@ def edit_quest(day, quest_index):
             description = request.form.get('description')
             # Validate required fields
             if not title or not start_time or not end_time:
-                flash('Title, start time, and end time are required!', 'error')
+                flash('Title, start time, and end time are required!')
                 return redirect(url_for('edit_quest', day=day, quest_index=quest_index))
             # Validate time format
             try:
@@ -259,7 +269,7 @@ def edit_quest(day, quest_index):
                 flash('Invalid time format!')
                 return redirect(url_for('edit_quest', day=day, quest_index=quest_index))
             if start_time >= end_time:
-                flash('End time must be after start time.', 'error')
+                flash('End time must be after start time.')
                 return redirect(url_for('edit_quest', day=day, quest_index=quest_index))
             # Update the quest with new data
             quest.update({
